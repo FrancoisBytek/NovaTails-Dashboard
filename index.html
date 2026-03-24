@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaTails PPC Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+:root{--navy:#0F1923;--gold:#E8A020;--gold-dim:rgba(232,160,32,0.12);--green:#1E7145;--green-bg:#EAF3DE;--red:#C00000;--red-bg:#FCEBEB;--amber:#7F4F00;--amber-bg:#FFF3CD;--blue:#185FA5;--blue-bg:#E6F1FB;--border:rgba(0,0,0,0.08);--surface:#F7F7F5;--white:#FFFFFF;--text:#1A1A1A;--muted:#6B6B6B;--faint:#A8A8A8;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface);color:var(--text);font-size:14px;min-height:100vh}
+button{font-family:var(--sans);cursor:pointer}
+select{font-family:var(--sans)}
+
+/* HEADER */
+.hdr{background:var(--navy);border-bottom:3px solid var(--gold)}
+.hdr-inner{max-width:1200px;margin:0 auto;padding:16px 24px 0}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.brand-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.brand-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.brand-name{color:var(--gold);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.brand-sep{color:#333;font-size:10px}
+.brand-sub{color:#777;font-size:10px}
+.hdr-title{color:white;font-size:20px;font-weight:500;letter-spacing:-.02em}
+.hdr-right{text-align:right}
+.live-row{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:4px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#2ECC71;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.live-txt{color:#888;font-size:11px}
+.phase-pill{display:inline-flex;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid rgba(232,160,32,0.25);border-radius:20px;padding:3px 10px}
+.phase-pill span{color:var(--gold);font-size:10px;font-weight:500}
+.main-tabs{display:flex;gap:0;margin-top:14px;overflow-x:auto}
+.mtab{padding:10px 16px;font-size:12px;font-weight:400;color:#666;background:transparent;border:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s}
+.mtab.on{color:white;font-weight:500;border-bottom-color:var(--gold)}
+.mtab:hover:not(.on){color:#aaa}
+
+/* BODY */
+.body{max-width:1200px;margin:0 auto;padding:20px 24px}
+
+/* DATE NAV */
+.dnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.stabs{display:flex;background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.stab{padding:6px 14px;font-size:12px;color:var(--muted);background:transparent;border:none;transition:all .15s}
+.stab.on{background:var(--navy);color:white;font-weight:500}
+.dcontrols{display:flex;align-items:center;gap:8px}
+.nbtn{background:var(--white);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:4px;font-size:13px;transition:all .15s}
+.nbtn:hover{border-color:var(--navy);color:var(--navy)}
+.dsel{font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:4px;background:var(--white);color:var(--text)}
+.dinfo{font-size:10px;color:var(--faint);font-family:var(--mono)}
+
+/* KPI */
+.kgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border)}
+.kpi.gold::before{background:var(--gold)}
+.kpi.green::before{background:var(--green)}
+.kpi.red::before{background:var(--red)}
+.kpi.blue::before{background:var(--blue)}
+.kpi.navy::before{background:var(--navy)}
+.kl{font-size:10px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kv{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-.03em}
+.kv.gold{color:var(--gold)}
+.kv.green{color:var(--green)}
+.kv.red{color:var(--red)}
+.kv.muted{color:var(--muted)}
+.ks{font-size:11px;color:var(--faint);margin-top:4px}
+
+/* BENCHMARK */
+.bench{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.bi{text-align:center}
+.bil{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.biv{font-size:13px;font-weight:600;color:var(--navy);font-family:var(--mono)}
+
+/* ALERTS */
+.sec-label{font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.alert{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:6px;margin-bottom:4px;font-size:12px;line-height:1.5}
+.alert.crit{background:var(--red-bg);border-left:3px solid var(--red)}
+.alert.warn{background:var(--amber-bg);border-left:3px solid #F0AD00}
+.alert.info{background:var(--blue-bg);border-left:3px solid var(--blue)}
+.asev{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.asev.crit{background:var(--red);color:white}
+.asev.warn{background:#F0AD00;color:white}
+.asev.info{background:var(--blue);color:white}
+.amsg{flex:1;color:var(--text)}
+.no-alerts{padding:10px 14px;font-size:12px;color:var(--faint);background:var(--white);border:1px solid var(--border);border-radius:6px;text-align:center}
+
+/* CONTEXT */
+.ctx{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--navy);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;font-style:italic}
+
+/* TABLE */
+.twrap{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.thead-bar{padding:10px 14px;background:var(--navy);display:flex;align-items:center;justify-content:space-between}
+.thead-title{font-size:11px;font-weight:500;color:white;text-transform:uppercase;letter-spacing:.06em}
+.thead-meta{font-size:10px;color:#888;font-family:var(--mono)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:7px 12px;font-size:10px;font-weight:600;color:var(--faint);text-align:left;border-bottom:1px solid var(--border);background:#FAFAFA;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:7px 12px;border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:middle}
+.tbl td.r{text-align:right;font-family:var(--mono);font-size:11px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(15,25,35,0.02)}
+.tbl tr.tot td{background:rgba(15,25,35,0.04);font-weight:600;border-top:1px solid var(--border)}
+.cname{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.tbadge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em}
+.t-ranking{background:rgba(15,25,35,0.08);color:var(--navy)}
+.t-multi{background:rgba(24,95,165,0.1);color:var(--blue)}
+.t-auto{background:rgba(30,113,69,0.1);color:var(--green)}
+.t-sbv{background:rgba(232,160,32,0.15);color:#7F4F00}
+.t-pt{background:rgba(0,0,0,0.06);color:var(--muted)}
+.pbadge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.p-on{background:var(--green-bg);color:var(--green)}
+.p-over{background:var(--red-bg);color:var(--red)}
+.p-under{background:var(--amber-bg);color:var(--amber)}
+.p-nd{background:#F0F0F0;color:var(--faint)}
+.acos-na{color:var(--faint);font-family:var(--mono);font-size:11px}
+.acos-ok{color:var(--green);font-weight:500;font-family:var(--mono);font-size:11px}
+.acos-warn{color:var(--amber);font-weight:500;font-family:var(--mono);font-size:11px}
+.acos-bad{color:var(--red);font-weight:500;font-family:var(--mono);font-size:11px}
+.impr-warn{color:var(--red);font-weight:500}
+
+/* TRENDS */
+.rbar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.rbtn{padding:5px 12px;font-size:11px;border:1px solid var(--border);background:var(--white);color:var(--muted);border-radius:4px;transition:all .15s}
+.rbtn.on{background:var(--navy);color:white;border-color:var(--navy)}
+.cblock{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px}
+.clabel{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.clabel-note{font-weight:400;font-style:italic;color:var(--faint)}
+.cwrap{position:relative;width:100%;height:160px}
+.cpending{height:100px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border);border-radius:6px}
+.cpending span{font-size:12px;color:var(--faint)}
+
+/* PLACEHOLDER */
+.placeholder{display:flex;align-items:center;justify-content:center;min-height:200px;border:1px dashed var(--border);border-radius:8px;color:var(--faint);font-size:13px;background:var(--white)}
+
+/* LOADING / ERROR */
+.loading{text-align:center;padding:60px;color:var(--muted)}
+.loading-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--red-bg);border:1px solid var(--red);border-radius:8px;padding:16px;color:var(--red);font-size:13px;text-align:center}
+
+/* FOOTER */
+.footer{background:var(--navy);padding:10px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-top:32px}
+.footer span{font-size:10px;color:#444}
+
+/* MISSING */
+.mtag{display:inline-block;background:var(--red-bg);color:var(--red);font-size:11px;padding:2px 8px;border-radius:4px;margin:2px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .kgrid{grid-template-columns:repeat(2,1fr)}
+  .bench{grid-template-columns:repeat(3,1fr)}
+  .hdr-inner{padding:12px 16px 0}
+  .body{padding:14px 16px}
+}
+@media(max-width:480px){
+  .kgrid{grid-template-columns:1fr 1fr}
+  .bench{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-top">
+      <div>
+        <div class="brand-row">
+          <div class="brand-dot"></div>
+          <span class="brand-name">NovaTails</span>
+          <span class="brand-sep">|</span>
+          <span class="brand-sub">B0GDR1FRF4</span>
+          <span class="brand-sep">|</span>
+          <span class="brand-sub">Cape Nova LLC</span>
+        </div>
+        <div class="hdr-title">PPC Performance Dashboard</div>
+      </div>
+      <div class="hdr-right">
+        <div class="live-row">
+          <div class="live-dot"></div>
+          <span class="live-txt" id="last-updated">Loading...</span>
+        </div>
+        <div class="phase-pill" id="phase-pill">
+          <span id="phase-label">Loading phase...</span>
+        </div>
+      </div>
+    </div>
+    <div class="main-tabs">
+      <button class="mtab on" onclick="setMain('daily',this)">Daily report</button>
+      <button class="mtab" onclick="setMain('weekly',this)">Weekly report</button>
+      <button class="mtab" onclick="setMain('supply',this)">Supply chain</button>
+      <button class="mtab" onclick="setMain('cashflow',this)">Cash flow</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="body">
+
+  <!-- LOADING STATE -->
+  <div id="loading-state">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <div>Loading dashboard data...</div>
+    </div>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div id="error-state" style="display:none">
+    <div class="error-box" id="error-msg"></div>
+  </div>
+
+  <!-- DAILY TAB -->
+  <div id="tab-daily" style="display:none">
+
+    <!-- DATE NAV -->
+    <div class="dnav">
+      <div class="stabs">
+        <button class="stab on" onclick="setSub('overview',this)">Overview</button>
+        <button class="stab" onclick="setSub('campaigns',this)">Campaigns</button>
+        <button class="stab" onclick="setSub('trends',this)">Trends</button>
+      </div>
+      <div class="dcontrols">
+        <button class="nbtn" onclick="changeDay(-1)">&#8592;</button>
+        <select class="dsel" id="date-select" onchange="loadDay(parseInt(this.value))"></select>
+        <button class="nbtn" onclick="changeDay(1)">&#8594;</button>
+        <span class="dinfo" id="day-info"></span>
+      </div>
+    </div>
+
+    <!-- OVERVIEW SUB -->
+    <div id="sub-overview">
+      <div class="kgrid" id="kpi-grid"></div>
+      <div class="bench" id="bench-row"></div>
+      <div class="ctx" id="ctx-note"></div>
+      <div class="sec-label" id="alert-label"></div>
+      <div id="alerts-list" style="margin-bottom:14px"></div>
+      <div id="missing-block"></div>
+    </div>
+
+    <!-- CAMPAIGNS SUB -->
+    <div id="sub-campaigns" style="display:none">
+      <div class="twrap">
+        <div class="thead-bar">
+          <span class="thead-title">Campaign performance</span>
+          <span class="thead-meta" id="camp-meta"></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl" style="table-layout:fixed">
+            <thead>
+              <tr>
+                <th style="width:26%">Campaign</th>
+                <th style="width:7%">Type</th>
+                <th class="r" style="width:8%">Budget</th>
+                <th class="r" style="width:7%">Spend</th>
+                <th class="r" style="width:7%">% Used</th>
+                <th class="r" style="width:8%">Pacing</th>
+                <th class="r" style="width:8%">Impr.</th>
+                <th class="r" style="width:6%">Clicks</th>
+                <th class="r" style="width:6%">CTR</th>
+                <th class="r" style="width:7%">CPC</th>
+                <th class="r" style="width:7%">CVR</th>
+                <th class="r" style="width:7%">ACoS</th>
+              </tr>
+            </thead>
+            <tbody id="camp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRENDS SUB -->
+    <div id="sub-trends" style="display:none">
+      <div class="rbar" id="range-bar">
+        <button class="rbtn on" onclick="setRange(7,this)">7 days</button>
+        <button class="rbtn" onclick="setRange(30,this)">30 days</button>
+        <button class="rbtn" onclick="setRange(90,this)">3 months</button>
+        <button class="rbtn" onclick="setRange(365,this)">1 year</button>
+        <button class="rbtn" onclick="setRange(9999,this)">Since launch</button>
+      </div>
+      <div class="cblock">
+        <div class="clabel">Impressions</div>
+        <div class="cwrap"><canvas id="c-impr"></canvas></div>
+      </div>
+      <div class="cblock">
+        <div class="clabel">
+          <span>CTR (%)</span>
+          <span class="clabel-note">clicks ÷ impressions</span>
+        </div>
+        <div class="cwrap"><canvas id="c-ctr"></canvas></div>
+      </div>
+      <div class="cblock">
+        <div class="clabel">
+          <span>CVR (%)</span>
+          <span class="clabel-note" id="cvr-note">orders ÷ clicks</span>
+        </div>
+        <div id="cvr-pending" class="cpending"><span>CVR activates after first sale is recorded</span></div>
+        <div id="cvr-wrap" style="display:none" class="cwrap"><canvas id="c-cvr"></canvas></div>
+      </div>
+      <div class="cblock">
+        <div class="clabel">
+          <span>ACoS (%)</span>
+          <span class="clabel-note" id="acos-note">spend ÷ ad sales</span>
+        </div>
+        <div id="acos-pending" class="cpending"><span>ACoS activates after first sale is recorded</span></div>
+        <div id="acos-wrap" style="display:none" class="cwrap"><canvas id="c-acos"></canvas></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-daily -->
+
+  <!-- OTHER TABS -->
+  <div id="tab-weekly" style="display:none"><div class="placeholder">Weekly report — available from Week 2</div></div>
+  <div id="tab-supply" style="display:none"><div class="placeholder">Supply chain report — coming soon</div></div>
+  <div id="tab-cashflow" style="display:none"><div class="placeholder">Cash flow report — coming soon</div></div>
+
+</div><!-- /body -->
+
+<div class="footer">
+  <span>Cape Nova LLC · NovaTails Puppy Probiotic · B0GDR1FRF4</span>
+  <span id="footer-source">Data source: Google Sheets · Auto-updates daily at 08:30</span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+const SHEET_ID = '1zxoTnSQ284L4DxXGgb5tT-X4opkIjkGoB5ocIOgd3s4';
+const SHEET_NAME = 'Sheet1';
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let ALL_ROWS = [];
+let CURRENT_IDX = 0;
+let CHARTS = {};
+let CURRENT_RANGE = 7;
+
+// ─── FETCH DATA ────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^.*?(\{)/, '$1').replace(/\);?\s*$/, ''));
+    const cols = json.table.cols.map(c => c.label || c.id);
+    const rows = json.table.rows.map(row => {
+      const obj = {};
+      row.c.forEach((cell, i) => {
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+      });
+      return obj;
+    }).filter(r => r.reportDate);
+
+    if (rows.length === 0) throw new Error('No data found in sheet. Run the n8n workflow to populate data.');
+
+    ALL_ROWS = rows.reverse(); // most recent first
+    buildDateSelect();
+    CURRENT_IDX = 0;
+    renderDay(0);
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('tab-daily').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+    document.getElementById('error-msg').textContent = 'Error loading data: ' + e.message + '. Make sure your Google Sheet is shared publicly (Anyone with link → Viewer).';
+  }
+}
+
+// ─── DATE SELECT ───────────────────────────────────────────────────────────
+function buildDateSelect() {
+  const sel = document.getElementById('date-select');
+  sel.innerHTML = ALL_ROWS.map((r, i) =>
+    `<option value="${i}">${r.reportDate}${i === 0 ? ' (today)' : ''}</option>`
+  ).join('');
+}
+
+// ─── LOAD DAY ──────────────────────────────────────────────────────────────
+function loadDay(idx) {
+  CURRENT_IDX = Math.max(0, Math.min(ALL_ROWS.length - 1, idx));
+  document.getElementById('date-select').value = CURRENT_IDX;
+  renderDay(CURRENT_IDX);
+}
+
+function changeDay(dir) {
+  loadDay(CURRENT_IDX - dir);
+}
+
+// ─── RENDER DAY ────────────────────────────────────────────────────────────
+function renderDay(idx) {
+  const r = ALL_ROWS[idx];
+  if (!r) return;
+
+  // Header
+  document.getElementById('last-updated').textContent = 'Updated: ' + r.reportDate + ' · 08:30';
+  document.getElementById('phase-label').textContent = (r.phaseName || 'Phase ' + r.phaseNumber) + ' · Day ' + r.phaseDay + ' · Week ' + r.phaseWeek;
+  document.getElementById('day-info').textContent = 'Phase 1 · Day ' + r.phaseDay + ' · Wk ' + r.phaseWeek;
+
+  // KPIs
+  const spend = parseFloat(r.totalSpend) || 0;
+  const sales = parseFloat(r.totalSales) || 0;
+  const orders = parseInt(r.totalOrders) || 0;
+  const impr = parseInt(r.totalImpressions) || 0;
+  const clicks = parseInt(r.totalClicks) || 0;
+  const acos = r.blendedAcos && r.blendedAcos !== '' && r.blendedAcos !== 'null' ? parseFloat(r.blendedAcos) : null;
+  const cvr = parseFloat(r.blendedCvr) || 0;
+  const cpc = parseFloat(r.avgCpc) || 0;
+  const budgetPct = parseFloat(r.budgetUsedPct) || 0;
+  const pacing = r.pacingStatus || 'On Track';
+  const budget = parseFloat(r.benchmarkBudget) || 84;
+  const acosMin = parseFloat(r.benchmarkAcosMin);
+  const acosMax = parseFloat(r.benchmarkAcosMax);
+  const ctr = impr > 0 ? (clicks / impr * 100) : 0;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi gold">
+      <div class="kl">Total spend</div>
+      <div class="kv gold">${f$(spend)}</div>
+      <div class="ks">Budget ${f$(budget)} · ${pacing}</div>
+    </div>
+    <div class="kpi ${sales > 0 ? 'green' : ''}">
+      <div class="kl">Total sales</div>
+      <div class="kv ${sales > 0 ? 'green' : 'muted'}">${f$(sales)}</div>
+      <div class="ks">${orders} orders</div>
+    </div>
+    <div class="kpi ${acos !== null ? (acos <= acosMax ? 'green' : 'red') : ''}">
+      <div class="kl">ACoS</div>
+      <div class="kv ${acos !== null ? (acos <= acosMax ? 'green' : 'red') : 'muted'}">${acos !== null ? fp(acos) : 'N/A'}</div>
+      <div class="ks">Benchmark: ${acosMin}–${acosMax}%</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kl">Impressions</div>
+      <div class="kv">${fn(impr)}</div>
+      <div class="ks">SP · SBV when active</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Clicks</div>
+      <div class="kv">${fn(clicks)}</div>
+      <div class="ks">SP total</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">CTR</div>
+      <div class="kv">${fp(ctr)}</div>
+      <div class="ks">clicks ÷ impressions</div>
+    </div>
+    <div class="kpi ${cvr > 0 ? 'green' : ''}">
+      <div class="kl">CVR</div>
+      <div class="kv ${cvr > 0 ? 'green' : 'muted'}">${cvr > 0 ? fp(cvr) : 'N/A'}</div>
+      <div class="ks">Target: ${r.benchmarkCvrTarget}%</div>
+    </div>
+    <div class="kpi ${budgetPct > 100 ? 'red' : budgetPct < 50 ? 'amber' : 'navy'}">
+      <div class="kl">Budget used</div>
+      <div class="kv ${budgetPct > 100 ? 'red' : ''}">${fp(budgetPct)}</div>
+      <div class="ks">${f$(Math.max(0, budget - spend))} remaining</div>
+    </div>`;
+
+  // Benchmarks
+  document.getElementById('bench-row').innerHTML = `
+    <div class="bi"><div class="bil">Daily budget</div><div class="biv">${f$(budget)}</div></div>
+    <div class="bi"><div class="bil">ACoS range</div><div class="biv">${acosMin}–${acosMax}%</div></div>
+    <div class="bi"><div class="bil">CVR target</div><div class="biv">${r.benchmarkCvrTarget}%</div></div>
+    <div class="bi"><div class="bil">Impr. threshold</div><div class="biv">${r.benchmarkImpressionsThreshold}/day</div></div>
+    <div class="bi"><div class="bil">Break-even ACoS</div><div class="biv">40%</div></div>`;
+
+  // Context
+  document.getElementById('ctx-note').textContent = r.phaseContextNote || '';
+
+  // Alerts
+  let alerts = [];
+  try { alerts = JSON.parse(r.alertsJSON || '[]'); } catch(e) {}
+  const alertCount = parseInt(r.alertCount) || 0;
+  const crit = parseInt(r.alertsCritical) || 0;
+  const warn = parseInt(r.alertsWarning) || 0;
+  const sevSummary = [crit > 0 ? crit + ' CRITICAL' : '', warn > 0 ? warn + ' WARNING' : ''].filter(Boolean).join(' · ') || 'INFO only';
+  document.getElementById('alert-label').textContent = alertCount + ' alert' + (alertCount !== 1 ? 's' : '') + (alertCount > 0 ? ' — ' + sevSummary : '');
+
+  if (alerts.length === 0) {
+    document.getElementById('alerts-list').innerHTML = '<div class="no-alerts">No alerts triggered for this date</div>';
+  } else {
+    document.getElementById('alerts-list').innerHTML = alerts.map(a => {
+      const cls = a.severity === 'CRITICAL' ? 'crit' : a.severity === 'WARNING' ? 'warn' : 'info';
+      return `<div class="alert ${cls}"><span class="asev ${cls}">${a.severity}</span><span class="amsg">${a.message}</span></div>`;
+    }).join('');
+  }
+
+  // Missing campaigns
+  const missing = (r.missingCampaigns || '').split(',').map(s => s.trim()).filter(Boolean);
+  document.getElementById('missing-block').innerHTML = missing.length > 0
+    ? `<div class="sec-label" style="margin-bottom:6px">Missing campaigns (${missing.length})</div><div style="margin-bottom:14px">${missing.map(m => `<span class="mtag">${m}</span>`).join('')}</div>`
+    : '';
+
+  // Campaigns table
+  let camps = [];
+  try { camps = JSON.parse(r.campaignsJSON || '[]'); } catch(e) {}
+  document.getElementById('camp-meta').textContent = camps.length + ' campaigns · ' + r.reportDate;
+
+  const impThreshold = parseInt(r.benchmarkImpressionsThreshold) || 50;
+  let tbody = '';
+  let totSpend = 0, totSales = 0, totOrders = 0, totImpr = 0, totClicks = 0;
+  camps.forEach((c, i) => {
+    totSpend += parseFloat(c.cost) || 0;
+    totSales += parseFloat(c.sales) || 0;
+    totOrders += parseInt(c.orders) || 0;
+    totImpr += parseInt(c.impressions) || 0;
+    totClicks += parseInt(c.clicks) || 0;
+    const pct = c.budgetUsedPct != null ? parseFloat(c.budgetUsedPct).toFixed(1) + '%' : '—';
+    const pacingCls = c.pacingStatus === 'Over' ? 'p-over' : c.pacingStatus === 'Under' ? 'p-under' : c.pacingStatus === 'No Data' ? 'p-nd' : 'p-on';
+    const typeCls = 't-' + (c.type || 'auto').toLowerCase().replace(/[^a-z]/g,'').slice(0,8);
+    const imprDisplay = c.impressionAlert
+      ? `<span class="impr-warn">${fn(c.impressions)}</span>`
+      : fn(c.impressions);
+    const acosDisplay = acosCell(c.acos, acosMin, acosMax);
+    tbody += `<tr style="background:${i%2?'#FAFAFA':'white'}">
+      <td><div class="cname" title="${c.name}">${c.name}</div></td>
+      <td><span class="tbadge ${typeCls}">${c.type || '—'}</span></td>
+      <td class="r">${c.dailyBudget ? f$(parseFloat(c.dailyBudget)) : '—'}</td>
+      <td class="r">${f$(parseFloat(c.cost)||0)}</td>
+      <td class="r">${pct}</td>
+      <td class="r"><span class="pbadge ${pacingCls}">${c.pacingStatus}</span></td>
+      <td class="r">${imprDisplay}</td>
+      <td class="r">${fn(c.clicks)}</td>
+      <td class="r">${c.impressions > 0 ? fp(c.clicks/c.impressions*100) : '0.00%'}</td>
+      <td class="r">${c.cpc > 0 ? f$(parseFloat(c.cpc)) : '—'}</td>
+      <td class="r">${c.cvr > 0 ? fp(parseFloat(c.cvr)) : '<span class="acos-na">N/A</span>'}</td>
+      <td class="r">${acosDisplay}</td>
+    </tr>`;
+  });
+  const totAcos = totSales > 0 ? totSpend / totSales * 100 : null;
+  tbody += `<tr class="tot">
+    <td colspan="2">TOTAL / BLENDED</td>
+    <td class="r">—</td>
+    <td class="r">${f$(totSpend)}</td>
+    <td class="r">—</td>
+    <td class="r">—</td>
+    <td class="r">${fn(totImpr)}</td>
+    <td class="r">${fn(totClicks)}</td>
+    <td class="r">${totImpr > 0 ? fp(totClicks/totImpr*100) : '0.00%'}</td>
+    <td class="r">—</td>
+    <td class="r">${totOrders > 0 && totClicks > 0 ? fp(totOrders/totClicks*100) : '<span class="acos-na">N/A</span>'}</td>
+    <td class="r">${acosCell(totAcos, acosMin, acosMax)}</td>
+  </tr>`;
+  document.getElementById('camp-tbody').innerHTML = tbody;
+}
+
+// ─── TRENDS ────────────────────────────────────────────────────────────────
+function buildTrends(days) {
+  const slice = ALL_ROWS.slice().reverse().slice(-Math.min(days, ALL_ROWS.length));
+  const labels = slice.map(r => {
+    const parts = r.reportDate.split(' ');
+    return parts.slice(0,2).join(' ');
+  });
+  const imprs = slice.map(r => parseInt(r.totalImpressions) || 0);
+  const clicks = slice.map(r => parseInt(r.totalClicks) || 0);
+  const imprsArr = slice.map(r => parseInt(r.totalImpressions) || 0);
+  const ctrs = slice.map((r,i) => imprsArr[i] > 0 ? parseFloat((clicks[i]/imprsArr[i]*100).toFixed(2)) : 0);
+  const cvrs = slice.map(r => {
+    const v = r.blendedCvr;
+    return v && v !== '' && parseFloat(v) > 0 ? parseFloat(v) : null;
+  });
+  const acoss = slice.map(r => {
+    const v = r.blendedAcos;
+    return v && v !== '' && v !== 'null' && parseFloat(v) > 0 ? parseFloat(v) : null;
+  });
+
+  makeLineChart('c-impr', labels, imprs, '#185FA5', v => fn(v));
+  makeLineChart('c-ctr', labels, ctrs, '#0F6E56', v => v.toFixed(1) + '%');
+
+  const hasCvr = cvrs.some(v => v !== null);
+  document.getElementById('cvr-pending').style.display = hasCvr ? 'none' : 'flex';
+  document.getElementById('cvr-wrap').style.display = hasCvr ? 'block' : 'none';
+  if (hasCvr) makeLineChart('c-cvr', labels, cvrs, '#534AB7', v => v !== null ? v.toFixed(1) + '%' : '');
+
+  const hasAcos = acoss.some(v => v !== null);
+  document.getElementById('acos-pending').style.display = hasAcos ? 'none' : 'flex';
+  document.getElementById('acos-wrap').style.display = hasAcos ? 'block' : 'none';
+  if (hasAcos) makeLineChart('c-acos', labels, acoss, '#E24B4A', v => v !== null ? v.toFixed(1) + '%' : '');
+}
+
+function makeLineChart(id, labels, data, color, yFmt) {
+  if (CHARTS[id]) CHARTS[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  CHARTS[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: color,
+        backgroundColor: color.replace('rgb', 'rgba').replace(')', ',0.06)') || color + '0f',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: color,
+        fill: true,
+        tension: 0.3,
+        spanGaps: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#A8A8A8', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#A8A8A8', font: { size: 10 }, callback: yFmt }, grid: { color: 'rgba(0,0,0,0.05)' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ─── UI CONTROLS ──────────────────────────────────────────────────────────
+function setMain(name, btn) {
+  ['daily','weekly','supply','cashflow'].forEach(t => document.getElementById('tab-'+t).style.display = t === name ? 'block' : 'none');
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setSub(name, btn) {
+  ['overview','campaigns','trends'].forEach(t => document.getElementById('sub-'+t).style.display = t === name ? 'block' : 'none');
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  if (name === 'trends') setTimeout(() => buildTrends(CURRENT_RANGE), 50);
+}
+
+function setRange(days, btn) {
+  CURRENT_RANGE = days;
+  document.querySelectorAll('.rbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildTrends(days);
+}
+
+// ─── HELPERS ───────────────────────────────────────────────────────────────
+function f$(v) { return '$' + (parseFloat(v) || 0).toFixed(2); }
+function fp(v) { return (parseFloat(v) || 0).toFixed(2) + '%'; }
+function fn(v) { return (parseInt(v) || 0).toLocaleString(); }
+
+function acosCell(acos, min, max) {
+  if (acos === null || acos === undefined || acos === '' || isNaN(parseFloat(acos))) {
+    return '<span class="acos-na">N/A</span>';
+  }
+  const v = parseFloat(acos);
+  const cls = v <= max ? 'acos-ok' : v <= max * 1.25 ? 'acos-warn' : 'acos-bad';
+  return `<span class="${cls}">${v.toFixed(1)}%</span>`;
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
