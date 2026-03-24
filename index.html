@@ -339,7 +339,9 @@ async function loadData() {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
     const res = await fetch(url);
     const text = await res.text();
-    const json = JSON.parse(text.replace(/^.*?(\{)/, '$1').replace(/\);?\s*$/, ''));
+    const start = text.indexOf('(') + 1;
+    const end = text.lastIndexOf(')');
+    const json = JSON.parse(text.slice(start, end));
     const cols = json.table.cols.map(c => c.label || c.id);
     const rows = json.table.rows.map(row => {
       const obj = {};
