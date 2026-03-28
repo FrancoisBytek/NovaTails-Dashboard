@@ -346,7 +346,13 @@ async function loadData() {
     const rows = json.table.rows.map(row => {
       const obj = {};
       row.c.forEach((cell, i) => {
-        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+        let val = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+if (cols[i] === 'reportDate' && typeof val === 'string' && val.startsWith('Date(')) {
+  const parts = val.replace('Date(','').replace(')','').split(',');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  val = String(parseInt(parts[2])).padStart(2,'0') + ' ' + months[parseInt(parts[1])] + ' ' + parts[0];
+}
+obj[cols[i]] = val;
       });
       return obj;
     }).filter(r => r.reportDate);
