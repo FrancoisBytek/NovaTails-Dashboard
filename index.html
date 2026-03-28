@@ -100,7 +100,7 @@ select{font-family:var(--sans)}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:rgba(15,25,35,0.02)}
 .tbl tr.tot td{background:rgba(15,25,35,0.04);font-weight:600;border-top:1px solid var(--border)}
-.cname{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.cname{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
 .tbadge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em}
 .t-ranking{background:rgba(15,25,35,0.08);color:var(--navy)}
 .t-multi{background:rgba(24,95,165,0.1);color:var(--blue)}
@@ -249,7 +249,7 @@ select{font-family:var(--sans)}
           <table class="tbl" style="table-layout:fixed">
             <thead>
               <tr>
-                <th style="width:26%">Campaign</th>
+                <th style="width:36%">Campaign</th>
                 <th style="width:7%">Type</th>
                 <th class="r" style="width:8%">Budget</th>
                 <th class="r" style="width:7%">Spend</th>
@@ -346,13 +346,7 @@ async function loadData() {
     const rows = json.table.rows.map(row => {
       const obj = {};
       row.c.forEach((cell, i) => {
-        let val = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
-if (cols[i] === 'reportDate' && typeof val === 'string' && val.startsWith('Date(')) {
-  const parts = val.replace('Date(','').replace(')','').split(',');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  val = String(parseInt(parts[2])).padStart(2,'0') + ' ' + months[parseInt(parts[1])] + ' ' + parts[0];
-}
-obj[cols[i]] = val;
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
       });
       return obj;
     }).filter(r => r.reportDate);
@@ -484,7 +478,7 @@ function renderDay(idx) {
   } else {
     document.getElementById('alerts-list').innerHTML = alerts.map(a => {
       const cls = a.severity === 'CRITICAL' ? 'crit' : a.severity === 'WARNING' ? 'warn' : 'info';
-      return `<div class="alert ${cls}"><span class="asev ${cls}">${a.severity}</span><span class="amsg">${a.message}</span></div>`;
+      return `<div class="alert ${cls}"><span class="asev ${cls}">${a.severity}</span><span class="amsg"><strong>${a.campaign}</strong> — ${a.message}</span></div>`;
     }).join('');
   }
 
