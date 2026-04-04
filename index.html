@@ -100,7 +100,7 @@ select{font-family:var(--sans)}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:rgba(15,25,35,0.02)}
 .tbl tr.tot td{background:rgba(15,25,35,0.04);font-weight:600;border-top:1px solid var(--border)}
-.cname{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
+.cname{font-size:11px;word-break:break-word;white-space:normal;line-height:1.3}
 .tbadge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em}
 .t-ranking{background:rgba(15,25,35,0.08);color:var(--navy)}
 .t-multi{background:rgba(24,95,165,0.1);color:var(--blue)}
@@ -246,21 +246,21 @@ select{font-family:var(--sans)}
           <span class="thead-meta" id="camp-meta"></span>
         </div>
         <div style="overflow-x:auto">
-          <table class="tbl" style="table-layout:fixed">
+          <table class="tbl">
             <thead>
               <tr>
-                <th style="width:36%">Campaign</th>
-                <th style="width:7%">Type</th>
-                <th class="r" style="width:8%">Budget</th>
-                <th class="r" style="width:7%">Spend</th>
-                <th class="r" style="width:7%">% Used</th>
-                <th class="r" style="width:8%">Pacing</th>
-                <th class="r" style="width:8%">Impr.</th>
-                <th class="r" style="width:6%">Clicks</th>
-                <th class="r" style="width:6%">CTR</th>
-                <th class="r" style="width:7%">CPC</th>
-                <th class="r" style="width:7%">CVR</th>
-                <th class="r" style="width:7%">ACoS</th>
+                <th style="min-width:260px">Campaign</th>
+                <th style="width:90px">Type</th>
+                <th class="r" style="width:75px">Budget</th>
+                <th class="r" style="width:70px">Spend</th>
+                <th class="r" style="width:70px">% Used</th>
+                <th class="r" style="width:85px">Pacing</th>
+                <th class="r" style="width:65px">Impr.</th>
+                <th class="r" style="width:60px">Clicks</th>
+                <th class="r" style="width:65px">CTR</th>
+                <th class="r" style="width:65px">CPC</th>
+                <th class="r" style="width:60px">CVR</th>
+                <th class="r" style="width:65px">ACoS</th>
               </tr>
             </thead>
             <tbody id="camp-tbody"></tbody>
@@ -346,13 +346,7 @@ async function loadData() {
     const rows = json.table.rows.map(row => {
       const obj = {};
       row.c.forEach((cell, i) => {
-        let val = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
-if (cols[i] === 'reportDate' && typeof val === 'string' && val.startsWith('Date(')) {
-  const parts = val.replace('Date(','').replace(')','').split(',');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  val = String(parseInt(parts[2])).padStart(2,'0') + ' ' + months[parseInt(parts[1])] + ' ' + parts[0];
-}
-obj[cols[i]] = val;
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
       });
       return obj;
     }).filter(r => r.reportDate);
@@ -399,7 +393,7 @@ function renderDay(idx) {
   // Header
   document.getElementById('last-updated').textContent = 'Updated: ' + r.reportDate + ' · 08:30';
   document.getElementById('phase-label').textContent = (r.phaseName || 'Phase ' + r.phaseNumber) + ' · Day ' + r.phaseDay + ' · Week ' + r.phaseWeek;
-  document.getElementById('day-info').textContent = 'Phase 1 · Day ' + r.phaseDay + ' · Wk ' + r.phaseWeek;
+  document.getElementById('day-info').textContent = (r.phaseName || 'Phase ' + r.phaseNumber) + ' · Day ' + r.phaseDay + ' · Wk ' + r.phaseWeek;
 
   // KPIs
   const spend = parseFloat(r.totalSpend) || 0;
@@ -412,9 +406,9 @@ function renderDay(idx) {
   const cpc = parseFloat(r.avgCpc) || 0;
   const budgetPct = parseFloat(r.budgetUsedPct) || 0;
   const pacing = r.pacingStatus || 'On Track';
-  const budget = parseFloat(r.benchmarkBudget) || 84;
-  const acosMin = parseFloat(r.benchmarkAcosMin);
-  const acosMax = parseFloat(r.benchmarkAcosMax);
+  const budget = parseFloat(r.benchmarkBudget) || 0;
+  const acosMin = parseFloat(r.benchmarkAcosMin) || 0;
+  const acosMax = parseFloat(r.benchmarkAcosMax) || 0;
   const ctr = impr > 0 ? (clicks / impr * 100) : 0;
 
   document.getElementById('kpi-grid').innerHTML = `
